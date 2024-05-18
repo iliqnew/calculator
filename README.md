@@ -1,7 +1,8 @@
 # calculator
-
+```
 cd .\calculator_project\
 python .\manage.py runserver
+```
 
 Test the API
 
