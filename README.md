@@ -13,7 +13,9 @@ Test the API
 
 **via postman**
 
-url: http://127.0.0.1:8000/api/calculate/
+url:
+- http://127.0.0.1:8000/api/calculate/
+
 bodies (one per request):
 - {
     "operation": "add",
