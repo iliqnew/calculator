@@ -97,7 +97,7 @@ class ExpressionParser:
                     raise InvalidExpressionException(
                         "Invalid closing bracket neighbours"
                     )
-                if all(
+                if any(
                     [
                         # doesn't have a previous opening bracket
                         s == "",
