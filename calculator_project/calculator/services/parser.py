@@ -34,8 +34,17 @@ class ExpressionParser:
             expression = expression.replace("^", "**")
             print(expression)
             # replace ! with math.factorial
-            real_number_pattern = r"(\d+)!"
-            expression = re.sub(real_number_pattern, r"math.factorial(\1)", expression)
+            real_number_pattern = r"(\d+)"
+            expression = re.sub(
+                f"{real_number_pattern}!", r"math.factorial(\1)", expression
+            )
+            print(expression)
+            # replace % with percentage (a / 100 * b)
+            expression = re.sub(
+                f"{real_number_pattern}\s?%\s?{real_number_pattern}",
+                r"\1/100*\2",
+                expression,
+            )
             print(expression)
 
             # Evaluate the expression safely
