@@ -13,52 +13,6 @@ class ExpressionParser:
         self.brackets = {"(": ")", "[": "]"}
         self.allowed_chars = set("0123456789+-*/^%!().[] ")
 
-    def validate(self, expression: str):
-        # disallow empty expressions
-        if not expression.strip():
-            raise InvalidExpressionException("Expression cannot be empty")
-        # disallow expressions with characters that are not allowed
-        if not all(char in self.allowed_chars for char in expression):
-            raise InvalidExpressionException("Invalid characters in expression")
-        # disallow expressions with brackets that are not balanced
-        if not self.validate_brackets(expression):
-            raise InvalidExpressionException("Expression has unbalanced brackets")
-
-        # Additional validation rules can be added here
-
-    def evaluate(self, expression):
-        self.validate(expression)
-
-        try:
-            # Replace ^ with ** for exponentiation
-            expression = expression.replace("^", "**")
-            print(expression)
-            # replace ! with math.factorial
-            real_number_pattern = r"(\d+)"
-            expression = re.sub(
-                f"{real_number_pattern}!", r"math.factorial(\1)", expression
-            )
-            print(expression)
-            # replace % with percentage (a / 100 * b)
-            expression = re.sub(
-                f"{real_number_pattern}\s?%\s?{real_number_pattern}",
-                r"\1/100*\2",
-                expression,
-            )
-            print(expression)
-
-            # Evaluate the expression safely
-            result = eval(
-                expression,
-                {"__builtins__": None},
-                {
-                    "math": math,
-                },
-            )
-            return result
-        except Exception as e:
-            raise InvalidExpressionException(str(e))
-
     @staticmethod
     def in_limits(ind: int, expression: str) -> bool:
         return ind > 0 and ind < len(expression) - 1
@@ -118,3 +72,49 @@ class ExpressionParser:
                 s = s[:-1]
 
         return len(s) == 0
+
+    def validate(self, expression: str):
+        # disallow empty expressions
+        if not expression.strip():
+            raise InvalidExpressionException("Expression cannot be empty")
+        # disallow expressions with characters that are not allowed
+        if not all(char in self.allowed_chars for char in expression):
+            raise InvalidExpressionException("Invalid characters in expression")
+        # disallow expressions with brackets that are not balanced
+        if not self.validate_brackets(expression):
+            raise InvalidExpressionException("Expression has unbalanced brackets")
+
+        # Additional validation rules can be added here
+
+    def evaluate(self, expression):
+        self.validate(expression)
+
+        try:
+            # Replace ^ with ** for exponentiation
+            expression = expression.replace("^", "**")
+            print(expression)
+            # replace ! with math.factorial
+            real_number_pattern = r"(\d+)"
+            expression = re.sub(
+                f"{real_number_pattern}!", r"math.factorial(\1)", expression
+            )
+            print(expression)
+            # replace % with percentage (a / 100 * b)
+            expression = re.sub(
+                f"{real_number_pattern}\s?%\s?{real_number_pattern}",
+                r"\1/100*\2",
+                expression,
+            )
+            print(expression)
+
+            # Evaluate the expression safely
+            result = eval(
+                expression,
+                {"__builtins__": None},
+                {
+                    "math": math,
+                },
+            )
+            return result
+        except Exception as e:
+            raise InvalidExpressionException(str(e))
