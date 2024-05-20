@@ -19,6 +19,7 @@ Test the API
 - `curl -X POST http://127.0.0.1:8000/api/calculate/ -d '{"expression": "3!"}' -H "Content-Type: application/json"`
 - `curl -X POST http://127.0.0.1:8000/api/calculate/ -d '{"expression": "3 + 5 * (2 - 8)^3!"}' -H "Content-Type: application/json"`
 - `curl -X POST http://127.0.0.1:8000/api/calculate/ -d '{"expression": "3 + 5 * (2 - 8)^3! + 10%125"}' -H "Content-Type: application/json"`
+- `curl -X POST http://127.0.0.1:8000/api/calculate/ -d '{"expression": "3 + 5 * (2 - 8)^3! + 10%125 - (-5.34)^2 * (- 7)!"}' -H "Content-Type: application/json"`
 
 **via postman**
 
@@ -29,4 +30,4 @@ bodies (one per request):
 - `{"expression": "3!"}`
 - `{"expression": "3 + 5 * (2 - 8)^3!"}`
 - `{"expression": "3 + 5 * (2 - 8)^3! + 10%125"}`
- 
+- `{"expression": "3 + 5 * (2 - 8)^3! + 10%125 - (-5.34)^2"}`
