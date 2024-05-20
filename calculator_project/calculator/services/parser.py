@@ -53,7 +53,7 @@ class ExpressionParser:
             if char == closing:
                 if not all(
                     [
-                        (left in set("]) ") | self.digits or left is not None),
+                        (left in set("]) !") | self.digits or left is not None),
                         (right in set("]) ") | self.operators or right is None),
                     ]
                 ):
