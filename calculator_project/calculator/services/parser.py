@@ -93,9 +93,12 @@ class ExpressionParser:
             expression = expression.replace("^", "**")
             print(expression)
             # replace ! with math.factorial
-            real_number_pattern = r"(\d+)"
+            real_number_pattern_a = r"(?P<real_number_a>(?P<neg_a>\(\s?-\s?)?(?P<float_a>(?P<int_a>\d+)?(?P<decimal_a>(?(int_a)(\.\d+)?|(\.\d+))))(?(neg_a)\)|))"
+            real_number_pattern_b = r"(?P<real_number_b>(?P<neg_b>\(\s?-\s?)?(?P<float_b>(?P<int_b>\d+)?(?P<decimal_b>(?(int_b)(\.\d+)?|(\.\d+))))(?(neg_b)\)|))"
             expression = re.sub(
-                f"{real_number_pattern}!", r"math.factorial(\1)", expression
+                f"{real_number_pattern_a}!",
+                r"math.factorial(\g<real_number_a>)",
+                expression,
             )
             print(expression)
             # replace '[' and ']' with '(' and ')'
@@ -103,8 +106,8 @@ class ExpressionParser:
             print(expression)
             # replace % with percentage (a / 100 * b)
             expression = re.sub(
-                f"{real_number_pattern}\s?%\s?{real_number_pattern}",
-                r"\1/100*\2",
+                f"{real_number_pattern_a}\s?%\s?{real_number_pattern_b}",
+                r"\g<real_number_a>/100*\g<real_number_b>",
                 expression,
             )
             print(expression)
