@@ -81,8 +81,7 @@ class ExpressionParser:
         if not all(char in self.allowed_chars for char in expression):
             raise InvalidExpressionException("Invalid characters in expression")
         # disallow expressions with brackets that are not balanced
-        if not self.validate_brackets(expression):
-            raise InvalidExpressionException("Expression has unbalanced brackets")
+        self.validate_brackets(expression)
 
         # Additional validation rules can be added here
 
