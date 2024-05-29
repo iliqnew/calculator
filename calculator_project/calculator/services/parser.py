@@ -7,111 +7,54 @@ class InvalidExpressionException(Exception):
 
 
 class ExpressionParser:
-    def __init__(self):
-        self.operators = set("+-*/^")
-        self.digits = set("0123456789")
-        self.brackets = {"(": ")", "[": "]"}
-        self.allowed_chars = set("0123456789+-*/^%!().[] ")
-
-    @staticmethod
-    def in_limits(ind: int, expression: str) -> bool:
-        return ind > 0 and ind < len(expression) - 1
-
-    def validate_brackets(self, expression: str) -> bool:
-
-        # general/quick brackets check. Count and compare opening and closing brackets
-        for open, close in self.brackets.items():
-            if expression.count(open) != expression.count(close):
-                raise InvalidExpressionException("Brackets are not balanced")
-
-        # check for bracket balance and neighbours
-        s = ""
-        for i, char in enumerate(expression):
-            if char not in set(self.brackets.keys()) | set(self.brackets.values()):
-                continue
-
-            openning, closing = next(b for b in self.brackets.items() if char in b)
-
-            left = expression[i - 1] if self.in_limits(i - 1, expression) else None
-            right = expression[i + 1] if self.in_limits(i + 1, expression) else None
-
-            # opening bracket guardian
-            if char == openning:
-                if not all(
-                    [
-                        (left in set("([ ") | self.operators or left is None),
-                        (right in set("([ ") | self.digits or right is not None),
-                    ]
-                ):
-                    raise InvalidExpressionException(
-                        "Invalid opening bracket neighbours"
-                    )
-                s += char
-                continue
-
-            # closing bracket guardian
-            if char == closing:
-                if not all(
-                    [
-                        (left in set("]) !") | self.digits or left is not None),
-                        (right in set("]) ") | self.operators or right is None),
-                    ]
-                ):
-                    raise InvalidExpressionException(
-                        "Invalid closing bracket neighbours"
-                    )
-                if any(
-                    [
-                        # doesn't have a previous opening bracket
-                        s == "",
-                        # last bracket is not the oppening one of this type
-                        s[-1] != openning,
-                    ]
-                ):
-                    raise InvalidExpressionException("Brackets are not balanced")
-                s = s[:-1]
-
-        return len(s) == 0
-
-    def validate(self, expression: str):
-        # disallow empty expressions
-        if not expression.strip():
-            raise InvalidExpressionException("Expression cannot be empty")
-        # disallow expressions with characters that are not allowed
-        if not all(char in self.allowed_chars for char in expression):
-            raise InvalidExpressionException("Invalid characters in expression")
-        # disallow expressions with brackets that are not balanced
-        self.validate_brackets(expression)
-
-        # Additional validation rules can be added here
+    real_number_pattern_t = r"(?P<real_number_{}>(?P<neg_{}>\(\s?-\s?)?(?P<float_{}>(?P<int_{}>\d+)?(?P<decimal_{}>(?(int_{})(\.\d+)?|(\.\d+))))(?(neg_{})\)|))"
 
     def evaluate(self, expression):
-        self.validate(expression)
+        # self.validate(expression)
+
+        real_number_pattern_a = self.real_number_pattern_t.replace("{}", "a")
+        real_number_pattern_b = self.real_number_pattern_t.replace("{}", "b")
+        # Replace ^ with ** for exponentiation
+        expression = expression.replace("^", "**")
+        print(expression)
+        # replace ! with math.factorial
+        expression = re.sub(
+            f"{real_number_pattern_a}!",
+            r"math.factorial(\g<real_number_a>)",
+            expression,
+        )
+        print(expression)
+        # replace '[' and ']' with '(' and ')'
+        expression = expression.replace("[", "(").replace("]", ")")
+        print(expression)
+        # replace % with percentage (a / 100 * b)
+        expression = re.sub(
+            f"{real_number_pattern_a}\s?%\s?{real_number_pattern_b}",
+            r"\g<real_number_a>/100*\g<real_number_b>",
+            expression,
+        )
+        print(expression)
+
+        return self.evaluate_recursive(expression)
+
+    def evaluate_recursive(self, expression):
+        for i, char in enumerate(expression):
+            if char == "(":
+                sub_expression = ""
+                for j, char_2 in enumerate(expression[i + 1 :], start=i + 1):
+                    if char_2 == ")":
+                        break
+                    sub_expression += char_2
+                else:
+                    raise InvalidExpressionException("Missing closing bracket")
+                sub_result = self.evaluate_recursive(sub_expression)
+                sub_result = f"({sub_result})" if sub_result < 0 else f"{sub_result}"
+                print(i, j, sub_result)
+                expression = expression[:i] + sub_result + expression[j + 1 :]
+                print(expression)
+                break
 
         try:
-            # Replace ^ with ** for exponentiation
-            expression = expression.replace("^", "**")
-            print(expression)
-            # replace ! with math.factorial
-            real_number_pattern_a = r"(?P<real_number_a>(?P<neg_a>\(\s?-\s?)?(?P<float_a>(?P<int_a>\d+)?(?P<decimal_a>(?(int_a)(\.\d+)?|(\.\d+))))(?(neg_a)\)|))"
-            real_number_pattern_b = r"(?P<real_number_b>(?P<neg_b>\(\s?-\s?)?(?P<float_b>(?P<int_b>\d+)?(?P<decimal_b>(?(int_b)(\.\d+)?|(\.\d+))))(?(neg_b)\)|))"
-            expression = re.sub(
-                f"{real_number_pattern_a}!",
-                r"math.factorial(\g<real_number_a>)",
-                expression,
-            )
-            print(expression)
-            # replace '[' and ']' with '(' and ')'
-            expression = expression.replace("[", "(").replace("]", ")")
-            print(expression)
-            # replace % with percentage (a / 100 * b)
-            expression = re.sub(
-                f"{real_number_pattern_a}\s?%\s?{real_number_pattern_b}",
-                r"\g<real_number_a>/100*\g<real_number_b>",
-                expression,
-            )
-            print(expression)
-
             # Evaluate the expression safely
             result = eval(
                 expression,
